@@ -39,16 +39,10 @@ class CollectAlbum(BaseMiddleware):
         raise CancelHandler()
 
     async def adaptive_delay(self, message: types.Message):
-        if len(self.albums.get(message.media_group_id, [])) == 1:
-            self.timerHandles[message.media_group_id] = asyncio.get_event_loop().call_later(
-                    self.delay,
-                    asyncio.create_task,
-                    self.notify(message)
-                )
-        else:
+        if len(self.albums.get(message.media_group_id, [])) != 1:
             self.timerHandles[message.media_group_id].cancel()
-            self.timerHandles[message.media_group_id] = asyncio.get_event_loop().call_later(
-                    self.delay,
-                    asyncio.create_task,
-                    self.notify(message)
-                )
+        self.timerHandles[message.media_group_id] = asyncio.get_event_loop().call_later(
+                self.delay,
+                asyncio.create_task,
+                self.notify(message)
+            )
